@@ -1,0 +1,15 @@
+{
+  "background_color": "purple",
+  "description": "Watch these nerds streaming.",
+  "display": "fullscreen",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ],
+  "name": "hah.gay streaming!",
+  "short_name": "hah.gay",
+  "start_url": "/"
+}

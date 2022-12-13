@@ -23,7 +23,7 @@
         <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-12 h-100">
             <div id="chat" class="h-100"></div>
         </div>
-        -->
+	-->
     </div>
     <!-- You need dash.js to play MPEG-DASH. -->
     <script src="https://cdn.jsdelivr.net/npm/dashjs@latest/dist/dash.all.debug.min.js"></script>
@@ -38,34 +38,65 @@
         var pathSegments = window.location.pathname.split("/");
         var streamerPath = pathSegments.pop() || pathSegments.pop(); // for trailing slash
         streamerPath = streamerPath ? streamerPath : "stream";
+        var servicePath = pathSegments.pop();
 
-        // Initialize OvenPlayer
-        const player = OvenPlayer.create("player_id", {
-            "autoStart": true,
-            "autoFallback": false,
-            "mute": false,
-            "sources": [{
-                "label": "WebRTC - Realtime",
-                "type": "webrtc",
-                "file": "wss://hah.gay:3333/app/" + streamerPath
-            }, {
-                "label": "HLS - 5 Second Delay",
-                "type": "hls",
-                "file": "https://hah.gay:8080/app/" + streamerPath + "/playlist.m3u8"
-            }, {
-                "label": "DASH - 10 Second Delay",
-                "type": "dash",
-                "file": "https://hah.gay:8080/app/" + streamerPath + "/manifest.mpd"
-             }, {
-                "label": "LLDASH",
-                "type": "lldash",
-                "file": "https://hah.gay:8080/app/" + streamerPath + "/manifest_ll.mpd",
-                "dashConfig": {"streaming": {"lowLatencyEnabled": true}}
-            }]
-        });
+	if (servicePath) {
+		if (servicePath == "vod") {
+ 			const player = OvenPlayer.create("player_id", {
+                    		"autoStart": true,
+		                "autoFallback": false,
+		                "mute": false,
+	        	        "sources": [{
+                        		"label": "VOD",
+                        		"type": "mp4",
+	                        	"file": "https://api.hah.gay/vod/" + streamerPath
+				}]
+			});
+		}
+	} else if (false /*streamerPath == "rofl" || streamerPath == "rolf"*/) {
+		var playerDiv = document.getElementById("player_id");
+		var tosHTML = '<h1 style="text-align: center;">This streamer has been banned for violating TOS</h1>';
+		playerDiv.innerHTML = tosHTML;
+	} else {
+        	// Initialize OvenPlayer
+	        const player = OvenPlayer.create("player_id", {
+        	    title: streamerPath,
+		    waterMark: {
+        	        text: streamerPath,
+        	        font: {
+            		    'font-size': '20px',
+            		    'color': '#fff',
+            		    'font-weight': 'bold'
+        	        },
+        		position: 'bottom-right',
+			opacity: 0.2
+    		    },
+		    "autoStart": true,
+            	    "autoFallback": false,
+            	    "mute": false,
+            	    "sources": [{
+                	"label": "WebRTC - Realtime",
+                	"type": "webrtc",
+                	"file": "wss://hah.gay:3333/app/" + streamerPath
+            	    }, {
+                	"label": "HLS - 5 Second Delay",
+                	"type": "hls",
+                	"file": "https://hah.gay:8080/app/" + streamerPath + "/playlist.m3u8"
+            	    }, {
+                	"label": "DASH - 10 Second Delay",
+                	"type": "dash",
+                	"file": "https://hah.gay:8080/app/" + streamerPath + "/manifest.mpd"
+             	    }, {
+                	"label": "LLDASH",
+                	"type": "lldash",
+                	"file": "https://hah.gay:8080/app/" + streamerPath + "/manifest_ll.mpd",
+                	"dashConfig": {"streaming": {"lowLatencyEnabled": true}}
+            	    }]
+        	});
+	}
     </script>
     <script>
-    /*
+    /* 
         var ircHtmlString = "<iframe src=\"https://hah.gay:3001/#" + streamerPath + "\" style=\"border:0; width:100%; height:100%;\"></iframe>"
         var ircDiv = document.getElementById("chat");
         ircDiv.innerHTML = ircHtmlString;

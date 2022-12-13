@@ -11,9 +11,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.webmanifest">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-    <script id="body-template" type="text/x-hanglebards-template">
+    <script id="body-template" type="text/x-handlebars-template">
             {{#each streamers}}
                 <iframe class="{{../iframeClass}}" src="https://hah.gay/{{this}}"></iframe>
             {{/each}}
@@ -26,26 +27,44 @@
     var streamers = params.getAll("streamer");
 
     if (!(streamers.length)) {
-        const xhttp = new XMLHttpRequest();
-        xhttp.onload = function() {
-	    jsonResponse = JSON.parse(this.responseText);
-	    streamers = jsonResponse["response"];
-            displayStreamers();
-	}
-        xhttp.open("GET", "//api.hah.gay/streams/");
-        xhttp.send();
+        checkOnline();
     } else {
-        displayStreamers();
+        displayStreamers(streamers);
     }
 
-    function displayStreamers() {
+    function displayStreamers(streamersToDisplay) {
         var bodyTemplateSource = document.getElementById("body-template").innerHTML;
         var bodyTemplate = Handlebars.compile(bodyTemplateSource);
-        var iframeClass = streamers.length > 1 ? "half-width" : "full-width";
-        var bodyElement = bodyTemplate({streamers: streamers, iframeClass: iframeClass});
+	var layout = params.get("layout");
+	if (layout) {
+	    var iframeClass = layout == "vertical" ? "full-width" : "half-width";    
+	} else {
+	    var iframeClass = streamersToDisplay.length > 1 ? "half-width" : "full-width";
+	}
+	var bodyElement = bodyTemplate({streamers: streamersToDisplay, iframeClass: iframeClass});
         document.body.innerHTML = bodyElement;
     }
 
+    function checkOnline() {
+        const xhttp = new XMLHttpRequest();
+        xhttp.onload = function() {
+            jsonResponse = JSON.parse(this.responseText);
+            var streamers = jsonResponse["response"];
+	    if (!streamers.length){
+	        displayOffline();
+		setTimeout(checkOnline, 5000);
+	    } else {
+		displayStreamers(streamers);
+	    }
+        }
+        xhttp.open("GET", "//api.hah.gay/streams/");
+        xhttp.send();
+    }
+
+    function displayOffline() {
+        document.body.innerHTML = '<div style="width:100%; display: flex; justify-content: center; align-items: center;"><h1>Nobody is online :(</h1></div>';
+       
+    }
 </script>
 <script src="/static/main.js"></script>
 </html>
